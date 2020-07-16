@@ -758,9 +758,10 @@ class ONNXAdaptiveModel(BaseAdaptiveModel):
 
     For inference, this class is compatible with the FARM Inferencer.
     """
-    import onnxruntime
 
     def __init__(self, onnx_session, prediction_heads, language, device):
+        import onnxruntime
+
         if str(device) == "cuda" and onnxruntime.get_device() != "GPU":
             raise Exception(f"Device {device} not available for Inference. For CPU, run pip install onnxruntime and"
                             f"for GPU run pip install onnxruntime-gpu")
