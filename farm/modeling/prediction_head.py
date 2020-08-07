@@ -931,6 +931,7 @@ class QuestionAnsweringHead(PredictionHead):
                  context_window_size=100,
                  n_best=5,
                  n_best_per_sample=1,
+                 max_answer_length=60,
                  **kwargs):
         """
         :param layer_dims: dimensions of Feed Forward block, e.g. [768,2], for adjusting to BERT embedding. Output should be always 2
@@ -965,6 +966,7 @@ class QuestionAnsweringHead(PredictionHead):
         self.context_window_size = context_window_size
         self.n_best = n_best
         self.n_best_per_sample = n_best_per_sample
+        self.max_answer_length = max_answer_length
         self.generate_config()
 
 
@@ -1106,7 +1108,7 @@ class QuestionAnsweringHead(PredictionHead):
             sample_top_n = self.get_top_candidates(sorted_candidates[sample_idx],
                                                    start_end_matrix[sample_idx],
                                                    n_non_padding[sample_idx].item(),
-                                                   max_answer_length,
+                                                   self.max_answer_length,
                                                    seq_2_start_t[sample_idx].item(),
                                                    sample_idx)
             all_top_n.append(sample_top_n)
@@ -1135,7 +1137,7 @@ class QuestionAnsweringHead(PredictionHead):
                 if start_idx == 0 and end_idx == 0:
                     continue
                 # Check that the candidate's indices are valid and save them if they are
-                if self.valid_answer_idxs(start_idx, end_idx, n_non_padding, max_answer_length, seq_2_start_t):
+                if self.valid_answer_idxs(start_idx, end_idx, n_non_padding, self.max_answer_length, seq_2_start_t):
                     score = start_end_matrix[start_idx, end_idx].item()
                     top_candidates.append(QACandidate(offset_answer_start=start_idx,
                                                       offset_answer_end=end_idx,
